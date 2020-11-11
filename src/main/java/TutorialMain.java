@@ -21,29 +21,30 @@ public class TutorialMain {
 		String preparedFile = args[0];
 		// launch on Standard I/O. Note later don't use System.out
 		// to print text messages to console, it will block the channel.
-
-		// createServer(preparedFile).launchOnStdio();
+	
+		//createServer(preparedFile).launchOnStdio();
 
 		// launch on Socket, good for debugging
 		MagpieServer.launchOnSocketPort(5007, () -> createServer(preparedFile));
 	}
 
 	private static MagpieServer createServer(String preparedFile) {
-		// Step 1: Create a MagpieServer and configure it
-
+		//Step 1: Create a MagpieServer and configure it
+		
 		ServerConfiguration config = setConfig();
 		MagpieServer server = new MagpieServer(config);
 
-		// Step 2: Create your analysis and add to Server.
+		//Step 2: Create first analysis and add to server. 
 		ServerAnalysis firstAnalysis = new FirstAnalysis(preparedFile);
 		String language = "java";
 		Either<ServerAnalysis, ToolAnalysis> first = Either.forLeft(firstAnalysis);
 		server.addAnalysis(first, language);
-
-		// Step 3 (Task 2): Add a project service.
+				
+		//Step 3 (Task 2): Add a project service. 
 		IProjectService javaProjectService = new JavaProjectService();
 		server.addProjectService(language, javaProjectService);
-
+		
+		//Step 4 (Task 2): Create second analysis and add to server.
 		ServerAnalysis secondAnalysis = new SecondAnalysis();
 		Either<ServerAnalysis, ToolAnalysis> second = Either.forLeft(secondAnalysis);
 		server.addAnalysis(second, language);
@@ -57,18 +58,18 @@ public class TutorialMain {
 			// log the communications
 			File traceFile = Files.createTempFile("magpie_server_trace", ".lsp").toFile();
 			config.setLSPMessageTracer(new PrintWriter(traceFile));
-
+			
 			// Task 1
 			config.setDoAnalysisByOpen(true);
-
+			
 			// Task 2
-			// config.setDoAnalysisBySave(true);
-
+			//config.setDoAnalysisBySave(true);
+			
 			// Task 3
-			// config.setDoAnalysisByFirstOpen(false);
-			// config.setDoAnalysisBySave(false);
-			// config.setShowConfigurationPage(true, true);
-
+			//config.setDoAnalysisByFirstOpen(false);
+			//config.setDoAnalysisBySave(false);
+			//config.setShowConfigurationPage(true, true); 
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
