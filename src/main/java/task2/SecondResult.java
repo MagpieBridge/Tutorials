@@ -15,13 +15,13 @@ import magpiebridge.core.Kind;
  */
 public class SecondResult implements AnalysisResult {
 
-	private final Kind kind;
-	private final Position position;
-	private final String message;
-	private final Iterable<Pair<Position, String>> related;
-	private final DiagnosticSeverity severity;
-	private final Pair<Position, String> repair;
-	private final String code;
+	private Kind kind;
+	private Position position;
+	private String message;
+	private Iterable<Pair<Position, String>> related;
+	private DiagnosticSeverity severity;
+	private Pair<Position, String> repair;
+	private String code;
 
 	public SecondResult(Kind kind, Position pos, String msg, Iterable<Pair<Position, String>> relatedInfo,
 			DiagnosticSeverity severity, Pair<Position, String> repair, String code) {

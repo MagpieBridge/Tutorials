@@ -2,7 +2,6 @@ package task1;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +24,7 @@ import magpiebridge.core.ServerAnalysis;
 import magpiebridge.core.analysis.configuration.ConfigurationAction;
 import magpiebridge.core.analysis.configuration.ConfigurationOption;
 import magpiebridge.core.analysis.configuration.OptionType;
+import magpiebridge.util.SourceCodeReader;
 
 public class FirstAnalysis implements ServerAnalysis {
 
@@ -48,20 +48,19 @@ public class FirstAnalysis implements ServerAnalysis {
 				Set<AnalysisResult> results = searchResults(files, magpieServer);
 				magpieServer.consume(results, source());
 			}
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			MagpieServer.ExceptionLogger.log(e);
 		}
 
 	}
 
-	public Set<AnalysisResult> searchResults(Collection<? extends Module> files, MagpieServer server)
-			throws MalformedURLException {
+	public Set<AnalysisResult> searchResults(Collection<? extends Module> files, MagpieServer server) throws Exception {
 		Set<AnalysisResult> results = new HashSet<>();
 		for (Module file : files) {
 			if (file instanceof SourceFileModule) {
 				SourceFileModule sourceFile = (SourceFileModule) file;
-				System.err.println(String.format("Touched class %s, source file stored at %s", sourceFile.getClassName(),
-						sourceFile.getURL()));
+				System.err.println(String.format("Touched class %s, source file stored at %s",
+						sourceFile.getClassName(), sourceFile.getURL()));
 				searchResultForFile(server, results, sourceFile);
 			}
 		}
@@ -69,66 +68,72 @@ public class FirstAnalysis implements ServerAnalysis {
 	}
 
 	private void searchResultForFile(MagpieServer server, Set<AnalysisResult> results, SourceFileModule sourceFile)
-			throws MalformedURLException {
-		for (JsonResult res : this.jsonResults) {
+			throws Exception {
+		for (JsonResult result : this.jsonResults) {
 			String className = sourceFile.getClassName();
-			if (res.fileName.equals(className + ".java")) {
-				final JsonResult result = res;
+			if (result.fileName.equals(className + ".java")) {
 				// Note: the URL getting from files is at the server side,
 				// you need to get client (the code editor) side URL for client to consume the
 				// results.
 				final URL clientURL = new URL(server.getClientUri(sourceFile.getURL().toString()));
-				final Position pos = new Position() {
-
-					@Override
-					public int getFirstCol() {
-						return result.startColumn;
-					}
-
-					@Override
-					public int getFirstLine() {
-						return result.startLine;
-					}
-
-					@Override
-					public int getFirstOffset() {
-						return 0;
-					}
-
-					@Override
-					public int getLastCol() {
-						return result.endColumn;
-					}
-
-					@Override
-					public int getLastLine() {
-						return result.endLine;
-					}
-
-					@Override
-					public int getLastOffset() {
-						return 0;
-					}
-
-					@Override
-					public int compareTo(SourcePosition arg0) {
-						return 0;
-					}
-
-					@Override
-					public Reader getReader() throws IOException {
-						return null;
-					}
-
-					@Override
-					public URL getURL() {
-						return clientURL;
-					}
-				};
-				AnalysisResult r = new FirstResult(result, pos);
+				final Position clientPos = createPosition(result, clientURL);
+				final Position serverPos = createPosition(result, sourceFile.getURL());
+				String code = SourceCodeReader.getLinesInString(serverPos);
+				AnalysisResult r = new FirstResult(result, clientPos, code);
 				results.add(r);
 			}
 		}
+	}
+
+	private Position createPosition(final JsonResult result, final URL url) {
+		final Position pos = new Position() {
+
+			@Override
+			public int getFirstCol() {
+				return result.startColumn;
+			}
+
+			@Override
+			public int getFirstLine() {
+				return result.startLine;
+			}
+
+			@Override
+			public int getFirstOffset() {
+				return 0;
+			}
+
+			@Override
+			public int getLastCol() {
+				return result.endColumn;
+			}
+
+			@Override
+			public int getLastLine() {
+				return result.endLine;
+			}
+
+			@Override
+			public int getLastOffset() {
+				return 0;
+			}
+
+			@Override
+			public int compareTo(SourcePosition arg0) {
+				return 0;
+			}
+
+			@Override
+			public Reader getReader() throws IOException {
+				return null;
+			}
+
+			@Override
+			public URL getURL() {
+				return url;
+			}
+		};
+		return pos;
 	}
 
 	@Override
@@ -155,13 +160,13 @@ public class FirstAnalysis implements ServerAnalysis {
 
 	@Override
 	public void configure(List<ConfigurationOption> configuration) {
-		// TODO Auto-generated method stub
+		// TODO Configure your analysis.
 		ServerAnalysis.super.configure(configuration);
 	}
 
 	@Override
 	public void cleanUp() {
-		// TODO Auto-generated method stub
+		// TODO clean up when server is shutting down.
 		ServerAnalysis.super.cleanUp();
 	}
 

@@ -19,30 +19,30 @@ public class TutorialMain {
 
 	public static void main(String... args) {
 		String preparedFile = args[0];
-		// launch the server, here we choose stand I/O. Note later don't use System.out
+		// launch on Standard I/O. Note later don't use System.out
 		// to print text messages to console, it will block the channel.
-		//createServer(preparedFile).launchOnStdio();
 
-		// for debugging
+		// createServer(preparedFile).launchOnStdio();
+
+		// launch on Socket, good for debugging
 		MagpieServer.launchOnSocketPort(5007, () -> createServer(preparedFile));
 	}
 
 	private static MagpieServer createServer(String preparedFile) {
+		// Step 1: Create a MagpieServer and configure it
 
 		ServerConfiguration config = setConfig();
 		MagpieServer server = new MagpieServer(config);
 
-		// define which language you consider and add a project service for this
-		// language
-		String language = "java";
-		IProjectService javaProjectService = new JavaProjectService();
-
-		// add your customized analysis
+		// Step 2: Create your analysis and add to Server.
 		ServerAnalysis firstAnalysis = new FirstAnalysis(preparedFile);
-		server.addProjectService(language, javaProjectService);
-
+		String language = "java";
 		Either<ServerAnalysis, ToolAnalysis> first = Either.forLeft(firstAnalysis);
 		server.addAnalysis(first, language);
+
+		// Step 3 (Task 2): Add a project service.
+		IProjectService javaProjectService = new JavaProjectService();
+		server.addProjectService(language, javaProjectService);
 
 		ServerAnalysis secondAnalysis = new SecondAnalysis();
 		Either<ServerAnalysis, ToolAnalysis> second = Either.forLeft(secondAnalysis);
@@ -52,20 +52,27 @@ public class TutorialMain {
 	}
 
 	private static ServerConfiguration setConfig() {
-		// set up configuration for MagpieServer
-		ServerConfiguration configuration = new ServerConfiguration();
+		ServerConfiguration config = new ServerConfiguration();
 		try {
-			//configuration.setDoAnalysisByOpen(true);// first task
-			//configuration.setDoAnalysisBySave(true);// second task
-			configuration.setDoAnalysisByFirstOpen(false);// third task
-			configuration.setDoAnalysisBySave(false);// third task
-			 configuration.setShowConfigurationPage(true, true);//third task
+			// log the communications
 			File traceFile = Files.createTempFile("magpie_server_trace", ".lsp").toFile();
-			configuration.setLSPMessageTracer(new PrintWriter(traceFile));
+			config.setLSPMessageTracer(new PrintWriter(traceFile));
+
+			// Task 1
+			config.setDoAnalysisByOpen(true);
+
+			// Task 2
+			// config.setDoAnalysisBySave(true);
+
+			// Task 3
+			// config.setDoAnalysisByFirstOpen(false);
+			// config.setDoAnalysisBySave(false);
+			// config.setShowConfigurationPage(true, true);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return configuration;
+		return config;
 	}
 
 }

@@ -9,31 +9,25 @@ import com.ibm.wala.util.collections.Pair;
 
 import magpiebridge.core.AnalysisResult;
 import magpiebridge.core.Kind;
-import magpiebridge.util.SourceCodeReader;
 
 public class FirstResult implements AnalysisResult {
 
-	private final Kind kind;
-	private final Position position;
-	private final String message;
-	private final Iterable<Pair<Position, String>> related;
-	private final DiagnosticSeverity severity;
-	private final Pair<Position, String> repair;
-	private final String code;
+	private Kind kind;
+	private Position position;
+	private String message;
+	private Iterable<Pair<Position, String>> related;
+	private DiagnosticSeverity severity;
+	private Pair<Position, String> repair;
+	private String code;
 
-	public FirstResult(final JsonResult result, final Position pos) {
+	public FirstResult(final JsonResult result, final Position pos, final String code) {
 		this.kind = Kind.Diagnostic;
 		this.severity = DiagnosticSeverity.Error;
 		this.message = result.msg;
 		this.position = pos;
 		this.related = new ArrayList<Pair<Position, String>>();
 		this.repair = Pair.make(pos, result.repair);
-		try {
-			code = SourceCodeReader.getLinesInString(pos);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
+		this.code = code;
 	}
 
 	public Kind kind() {

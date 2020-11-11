@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -32,7 +31,6 @@ import task2.taintanalysis.TaintAnalysisRunner;
  *
  */
 public class SecondAnalysis implements ServerAnalysis {
-	private static final Logger LOG = Logger.getLogger("main");
 	private Set<String> srcPath;
 	private Set<String> libPath;
 	private MagpieServer magpieServer;
@@ -109,13 +107,13 @@ public class SecondAnalysis implements ServerAnalysis {
 
 	@Override
 	public void configure(List<ConfigurationOption> configuration) {
-		// TODO Auto-generated method stub
+		// TODO Configure your analysis.
 		ServerAnalysis.super.configure(configuration);
 	}
 
 	@Override
 	public void cleanUp() {
-		// TODO Auto-generated method stub
+		// TODO clean up when server is shutting down.
 		ServerAnalysis.super.cleanUp();
 	}
 

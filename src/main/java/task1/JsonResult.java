@@ -22,6 +22,12 @@ public class JsonResult {
 	protected int endColumn;
 	protected String repair;
 
+	/**
+	 * Read results from a JSON file.
+	 * 
+	 * @param pathToFindResults the path to the JSON file.
+	 * @return a set of result read from the JSON file.
+	 */
 	public static Set<JsonResult> readResults(String pathToFindResults) {
 		Set<JsonResult> ret = new HashSet<>();
 		try {
@@ -39,7 +45,6 @@ public class JsonResult {
 				res.repair = result.get("repair").getAsString();
 				ret.add(res);
 			}
-
 		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
